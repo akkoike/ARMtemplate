@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "vnettestPrefix": "172.20.0.0/16",
+        "vnettestSubnet1Name": "Subnet-1",
+        "vnettestSubnet1Prefix": "172.20.1.0/24",
+        "vnettestSubnet2Name": "Subnet-2",
+        "vnettestSubnet2Prefix": "172.20.2.0/24"
+    },
+    "resources": [
+        {
+            "name": "vnettest",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [],
+            "tags": {
+                "displayName": "vnettest"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vnettestPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('vnettestSubnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('vnettestSubnet1Prefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('vnettestSubnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('vnettestSubnet2Prefix')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
