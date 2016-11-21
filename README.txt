@@ -1,24 +1,27 @@
 README
 
-〇更新日
-　2016/11/16
+# update
+　2016/11/21
 
-〇概要
-　Microsoft AzureのARM テンプレートひな型置き場です。
+# summary
+　Free template about Azure Resource Manager templates.
 
-〇ライセンス・権限
-　不要です。自由にご利用ください。
+# License
+　Free
 
-〇必要なもの
-　Microsoft Azureを利用するためのSubscription/アカウントが必要です。
+# previous
+　you need to register "Microsoft Account/Organization Account" to use these templates .
 　
-〇ツリー構造の説明
-　- parts		各azureサービスを単体で利用するためのテンプレート集
-　- all-in-one		複数のazureサービスを利用したテンプレート集
-　- others		その他テンプレート
+# directory overview
+　- parts			-> Parts template of Azure Services
+	|- Virtual Machine
+	|- Storage Account
+	|- .....
 
-〇作成者より
-　ここにあげたテンプレートは全て作成者が（作成日時に）確認とったものですが
-　仕様の一部変更や一部機能制限により今後動作しないものが出てくる可能性はあります。
-　それだけこのARM templateの技術進化は早いのです。
-　その場合はテンプレートデプロイ時に出力されるエラー内容を見て適切な修正をした上でご利用ください。
+　- Customize			-> Packaged templates combined some Azure Services
+	|- 2 VM deploy on vNet/Subnet
+	|- 1 VM deploy used Extension 
+	|- .....
+
+　- others			-> No category
+
