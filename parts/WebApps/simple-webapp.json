@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverfarms_phptest_plan_name": {
+            "defaultValue": "phptest-plan",
+            "type": "String"
+        },
+        "sites_sample_name": {
+            "defaultValue": "sample-testname",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "リソース '/subscriptions/$$MASK$$/resourceGroups/phptest-rg/providers/Microsoft.Web/serverfarms/phptest-plan' から一般化されました。",
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            },
+            "name": "[parameters('serverfarms_phptest_plan_name')]",
+            "apiVersion": "2015-08-01",
+            "location": "Japan East",
+            "properties": {
+                "name": "[parameters('serverfarms_phptest_plan_name')]",
+                "numberOfWorkers": 1
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/$$MASK$$/resourceGroups/phptest-rg/providers/Microsoft.Web/sites/countdown-ps' から一般化されました。",
+            "type": "Microsoft.Web/sites",
+            "name": "[parameters('sites_sample_name')]",
+            "apiVersion": "2015-08-01",
+            "location": "Japan East",
+            "tags": {
+                "hidden-related:/subscriptions/$$MASK$$/resourcegroups/phptest-rg/providers/Microsoft.Web/serverfarms/phptest-plan": "empty"
+                
+            },
+            "properties": {
+                "name": "[parameters('sites_sample_name')]",
+                "hostNames": [
+                    "countdown-ps.azurewebsites.net"
+                ],
+                "enabledHostNames": [
+                    "countdown-ps.azurewebsites.net",
+                    "countdown-ps.scm.azurewebsites.net"
+                ],
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_sample_name'),'.azurewebsites.net')]",
+                        "sslState": 0,
+                        "thumbprint": null,
+                        "ipBasedSslState": 0
+                    },
+                    {
+                        "name": "[concat(parameters('sites_sample_name'),'.scm.azurewebsites.net')]",
+                        "sslState": 0,
+                        "thumbprint": null,
+                        "ipBasedSslState": 0
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_phptest_plan_name'))]"
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_phptest_plan_name'))]"
+            ]
+        }
+    ]
+}
