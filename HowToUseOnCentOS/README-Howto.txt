@@ -6,7 +6,7 @@ README
 
 	hostname$ sudo su -
 	hostname# yum update
-	hostname# yum upgrade ?y
+	hostname# yum upgrade -y
 	hostname# yum install epel-release
 	hostname# yum install nodejs
 	hostname# yum install npm
