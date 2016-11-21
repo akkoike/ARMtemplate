@@ -11,7 +11,7 @@ README
 
 # previous
   you need to register "Microsoft Account/Organization Account" to use these templates .
-@
+
 # directory overview
   - parts			-> Parts template of Azure Services
 	|- Virtual Machine
