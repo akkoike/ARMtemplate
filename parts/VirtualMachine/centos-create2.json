@@ -1,0 +1,292 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUser": {
+            "defaultValue": null,
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine."
+            }
+        },
+        "adminPassword": {
+            "defaultValue": null,
+            "type": "SecureString",
+            "metadata": {
+                "description": "User password for the adminUser."
+            }
+        },
+        "sshKeyData": {
+            "type": "string",
+            "defaultValue": null,
+            "metadata": {
+                "description": "SSH rsa public key file as a string , ex.(ssh-rsa AA----nFnJ)"
+            }
+        },
+        "virtualMachines_name": {
+            "defaultValue": "centostest01",
+            "type": "String",
+            "metadata": {
+                "description": "VM Name"
+            }
+        },
+        "availabilitySets_name": {
+            "defaultValue": "centostest01-avail",
+            "type": "string",
+            "metadata": {
+                "description": "Availability Set Name"
+            }
+        },
+        "networkSecurityGroups_name": {
+            "defaultValue": "centostest01-nsg",
+            "type": "String",
+            "metadata": {
+                "description": "NSG Name"
+            }
+        },
+        "virtualNetworks_name": {
+            "defaultValue": "cent-vnet",
+            "type": "String",
+            "metadata": {
+                "description": "vNet Name"
+            }
+        },
+        "script_urls": {
+            "defaultValue": null,
+            "type": "String",
+            "metadata": {
+                "description": "Url from global access , ex. (http://---.sh)"
+            }
+        },
+        "script_name": {
+            "defaultValue": "script.sh",
+            "type": "String",
+            "metadata": {
+                "description": "Only Script Name , ex. (---.sh)"
+            }
+        }
+
+    },
+    "variables": {
+        "networkInterfaces_name": "[concat(parameters('virtualMachines_name'),'0196')]",
+        "publicIPAddresses_name": "[concat(parameters('virtualMachines_name'),'-pip')]",
+        "storageAccounts_name": "[concat(parameters('virtualMachines_name'),'stor01')]",
+        "extensions_name": "[concat(parameters('virtualMachines_name'),'/extension')]"
+    },
+    "resources": [
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/availabilitySets/centostest01-avail' から一般化されました。",
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[parameters('availabilitySets_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "japaneast",
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 3
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01' から一般化されました。",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "japaneast",
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_name'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "Standard_A1"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[parameters('virtualMachines_name')]",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "[concat('https', '://', variables('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'2016102995621.vhd'))]"
+                        },
+                        "caching": "ReadWrite"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_name')]",
+                    "adminUsername": "[parameters('adminUser')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUser'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
+                        }
+                    },
+                    "secrets": [],
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaces_name'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaces_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/networkInterfaces/centostest0196' から一般化されました。",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('networkInterfaces_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "172.20.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddresses_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name')), '/subnets/SUBNET01')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_name'))]"
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddresses_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/networkSecurityGroups/centostest01-nsg' から一般化されました。",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-ssh",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/publicIPAddresses/centostest01-ip' から一般化されました。",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddresses_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/virtualNetworks/cent-vnet' から一般化されました。",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "172.20.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SUBNET01",
+                        "properties": {
+                            "addressPrefix": "172.20.0.0/24"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Storage/storageAccounts/centosstor01' から一般化されました。",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[variables('storageAccounts_name')]",
+            "apiVersion": "2016-01-01",
+            "location": "japaneast",
+            "tags": {},
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01/extensions/CustomScriptForLinux' から一般化されました。",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[variables('extensions_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "publisher": "Microsoft.OSTCExtensions",
+                "type": "CustomScriptForLinux",
+                "typeHandlerVersion": "1.4",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[parameters('script_urls')]"
+                    ],
+                "commandToExecute": "[concat('sh ',parameters('script_name'))]"
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_name'))]"
+            ]
+        }
+    ]
+}
