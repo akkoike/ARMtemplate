@@ -2,18 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "adminUser": {
-            "defaultValue": null,
+        "loginUser": {
+            "defaultValue": "azure01",
             "type": "string",
             "metadata": {
                 "description": "User name for the Virtual Machine."
-            }
-        },
-        "adminPassword": {
-            "defaultValue": null,
-            "type": "SecureString",
-            "metadata": {
-                "description": "User password for the adminUser."
             }
         },
         "sshKeyData": {
@@ -25,9 +18,49 @@
         },
         "virtualMachines_name": {
             "defaultValue": "centostest01",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "VM Name"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_A1",
+            "allowedValues": [
+                "Standard_A1",
+                "Standard_A2",
+                "Standard_D1",
+                "Standard_D2",
+                "Standard_D1_v2",
+                "Standard_D2_v2",
+                "Standard_DS1",
+                "Standard_DS2",
+                "Standard_DS1_v2",
+                "Standard_DS2_v2",
+                "Standard_F1",
+                "Standard_F2",
+                "Standard_F1s",
+                "Standard_F2s"
+                
+            ],
+            "metadata": {
+                "description": "Size of the Virtual Machine."
+            }
+        },
+        "osVersion": {
+            "type": "string",
+            "defaultValue": "7.2",
+            "allowedValues": [
+                "7.2",
+                "7.1",
+                "7.0",
+                "6.8",
+                "6.7",
+                "6.6",
+                "6.5"          
+            ],
+            "metadata": {
+                "description": "OS Version of CentOS."
             }
         },
         "availabilitySets_name": {
@@ -39,28 +72,28 @@
         },
         "networkSecurityGroups_name": {
             "defaultValue": "centostest01-nsg",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "NSG Name"
             }
         },
         "virtualNetworks_name": {
             "defaultValue": "cent-vnet",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "vNet Name"
             }
         },
         "script_urls": {
-            "defaultValue": null,
-            "type": "String",
+            "defaultValue": "https://raw.githubusercontent.com/akkoike/ARMtemplate/master/parts/VirtualMachine/script.sh",
+            "type": "string",
             "metadata": {
-                "description": "Url from global access , ex. (http://---.sh)"
+                "description": "Url arranged custom script-file , ex. (https://raw.githubusercontent.com/---/---.sh)"
             }
         },
         "script_name": {
             "defaultValue": "script.sh",
-            "type": "String",
+            "type": "string",
             "metadata": {
                 "description": "Only Script Name , ex. (---.sh)"
             }
@@ -75,11 +108,11 @@
     },
     "resources": [
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/availabilitySets/centostest01-avail' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Compute/availabilitySets/centostest01-avail' から一般化されました。",
             "type": "Microsoft.Compute/availabilitySets",
             "name": "[parameters('availabilitySets_name')]",
             "apiVersion": "2015-06-15",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "platformUpdateDomainCount": 5,
                 "platformFaultDomainCount": 3
@@ -88,23 +121,23 @@
             "dependsOn": []
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01' から一般化されました。",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('virtualMachines_name')]",
             "apiVersion": "2015-06-15",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "availabilitySet": {
                     "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_name'))]"
                 },
                 "hardwareProfile": {
-                    "vmSize": "Standard_A1"
+                    "vmSize": "[parameters('vmSize')]"
                 },
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "OpenLogic",
                         "offer": "CentOS",
-                        "sku": "7.2",
+                        "sku": "[parameters('osVersion')]",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -119,20 +152,18 @@
                 },
                 "osProfile": {
                     "computerName": "[parameters('virtualMachines_name')]",
-                    "adminUsername": "[parameters('adminUser')]",
+                    "adminUsername": "[parameters('loginUser')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('adminUser'), '/.ssh/authorized_keys')]",
+                                    "path": "[concat('/home/', parameters('loginUser'), '/.ssh/authorized_keys')]",
                                     "keyData": "[parameters('sshKeyData')]"
                                 }
                             ]
                         }
-                    },
-                    "secrets": [],
-                    "adminPassword": "[parameters('adminPassword')]"
+                    }
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -150,11 +181,11 @@
             ]
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/networkInterfaces/centostest0196' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/networkInterfaces/centostest0196' から一般化されました。",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[variables('networkInterfaces_name')]",
             "apiVersion": "2016-03-30",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "ipConfigurations": [
                     {
@@ -187,11 +218,11 @@
             ]
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/networkSecurityGroups/centostest01-nsg' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/networkSecurityGroups/centostest01-nsg' から一般化されました。",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[parameters('networkSecurityGroups_name')]",
             "apiVersion": "2016-03-30",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
                     {
@@ -213,11 +244,11 @@
             "dependsOn": []
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/publicIPAddresses/centostest01-ip' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/publicIPAddresses/centostest01-ip' から一般化されました。",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddresses_name')]",
             "apiVersion": "2016-03-30",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Static",
                 "idleTimeoutInMinutes": 4
@@ -226,11 +257,11 @@
             "dependsOn": []
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Network/virtualNetworks/cent-vnet' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/virtualNetworks/cent-vnet' から一般化されました。",
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[parameters('virtualNetworks_name')]",
             "apiVersion": "2016-03-30",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -250,7 +281,7 @@
             "dependsOn": []
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Storage/storageAccounts/centosstor01' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Storage/storageAccounts/centosstor01' から一般化されました。",
             "type": "Microsoft.Storage/storageAccounts",
             "sku": {
                 "name": "Standard_LRS",
@@ -259,18 +290,18 @@
             "kind": "Storage",
             "name": "[variables('storageAccounts_name')]",
             "apiVersion": "2016-01-01",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {},
             "resources": [],
             "dependsOn": []
         },
         {
-            "comments": "リソース '/subscriptions/cc257635-594d-4321-88d4-13ba28587fa8/resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01/extensions/CustomScriptForLinux' から一般化されました。",
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01/extensions/CustomScriptForLinux' から一般化されました。",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[variables('extensions_name')]",
             "apiVersion": "2016-03-30",
-            "location": "japaneast",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "publisher": "Microsoft.OSTCExtensions",
                 "type": "CustomScriptForLinux",
