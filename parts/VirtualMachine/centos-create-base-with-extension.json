@@ -76,8 +76,7 @@
             "allowedValues": [
                 "Standard_LRS",
                 "Standard_GRS",
-                "Standard_RAGRS",
-                "Premium_LRS"
+                "Standard_RAGRS"
             ],
             "metadata": {
                 "description": "Availability Set Name"
@@ -310,7 +309,7 @@
             "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Storage/storageAccounts/centosstor01' から一般化されました。",
             "type": "Microsoft.Storage/storageAccounts",
             "sku": {
-                "name": "Standard_LRS",
+                "name": "[parameters('storageRedundancy')]",
                 "tier": "Standard"
             },
             "kind": "Storage",
