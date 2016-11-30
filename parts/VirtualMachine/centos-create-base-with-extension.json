@@ -70,6 +70,19 @@
                 "description": "Availability Set Name"
             }
         },
+        "storageRedundancy": {
+            "defaultValue": "Standard_LRS",
+            "type": "string",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+            ],
+            "metadata": {
+                "description": "Availability Set Name"
+            }
+        },
         "networkSecurityGroups_name": {
             "defaultValue": "centostest01-nsg",
             "type": "string",
@@ -82,6 +95,20 @@
             "type": "string",
             "metadata": {
                 "description": "vNet Name"
+            }
+        },
+        "vnetAddressPrefix": {
+            "defaultValue": "172.10.0.0/16",
+            "type": "string",
+            "metadata": {
+                "description": "vNet address"
+            }
+        },
+        "subnetAddressPrefix": {
+            "defaultValue": "172.10.1.0/24",
+            "type": "string",
+            "metadata": {
+                "description": "Subnet address , need to include vNet address"
             }
         },
         "script_urls": {
@@ -191,7 +218,6 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAddress": "172.20.0.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddresses_name'))]"
@@ -265,14 +291,14 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "172.20.0.0/16"
+                        "[parameters('vnetAddressPrefix')]"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "SUBNET01",
                         "properties": {
-                            "addressPrefix": "172.20.0.0/24"
+                            "addressPrefix": "[parameters('subnetAddressPrefix')]"
                         }
                     }
                 ]
