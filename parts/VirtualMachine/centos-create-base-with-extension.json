@@ -170,7 +170,7 @@
                         "name": "[parameters('virtualMachines_name')]",
                         "createOption": "FromImage",
                         "vhd": {
-                            "uri": "[concat('https', '://', variables('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'2016102995621.vhd'))]"
+                            "uri": "[concat('https', '://', variables('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'_',uniqueString(resourceGroup().id),'.vhd'))]"
                         },
                         "caching": "ReadWrite"
                     },
