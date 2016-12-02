@@ -97,14 +97,14 @@
             }
         },
         "vnetAddressPrefix": {
-            "defaultValue": "172.10.0.0/16",
+            "defaultValue": "172.16.0.0/16",
             "type": "string",
             "metadata": {
                 "description": "vNet address"
             }
         },
         "subnetAddressPrefix": {
-            "defaultValue": "172.10.1.0/24",
+            "defaultValue": "172.16.0.0/24",
             "type": "string",
             "metadata": {
                 "description": "Subnet address , need to include vNet address"
