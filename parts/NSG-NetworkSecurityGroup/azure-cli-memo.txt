@@ -1,0 +1,35 @@
+## memo 
+## Azure CLI & Template validation/import
+
+
+# check azure CLI
+user@nodename $ azure help
+
+# check subscription-id
+user@nodename $ azure account list
+.
+.
+.
+
+# set subscription-id
+user@nodename $ azure account set "your subscription-id"
+
+# once , login your account by azure CLI
+user@nodename $ azure login
+ -> enter your account/password
+
+# create resource-group named "many-nsg-rg" in east-japan 
+user@nodename $ azure group create many-nsg-rg japaneast
+
+# check resource-group in your subscription
+user@nodename $ azure group list
+
+# template validation 
+user@nodename $ azure group template validate "resource-group name" -f ./"your json template"
+ex) user@nodename $ azure group template validate many-nsg-rg -f ./output.json
+
+# template deploy(import)
+user@nodename $ azure group deployment create "resource-group name" -f ./"your json template"
+ex) user@nodename $ azure group deployment create many-nsg-rg -f ./output.json
+
+thats all! please check your Azure portal 
