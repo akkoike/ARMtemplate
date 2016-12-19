@@ -1,6 +1,6 @@
 優先度,NSG名,ルール名,送信・受信,送信元アドレス,発信元ポート範囲,宛先アドレス,サービス（プロトコル）,サービス（ポート）,アクション
-100,test_nsg,ruleA,Inbound,192.168.0.0/24,ANY,172.16.64/27,TCP,445,Allow
-100,test2_nsg,ruleA,Inbound,192.168.1.0/24,ANY,172.16.64/27,TCP,445,Allow
-101,test2_nsg,ruleB,Inbound,192.168.2.0/24,ANY,172.16.64/27,TCP,445,Allow
-200,test2_nsg,ruleC,Outbound,192.168.0.0/24,ANY,172.16.64/27,TCP,445,Allow
+100,test_nsg,ruleA,Inbound,192.168.0.0/24,ANY,172.16.0.64/27,TCP,445,Allow
+100,test2_nsg,ruleA,Inbound,192.168.1.0/24,ANY,172.16.0.64/27,TCP,445,Allow
+101,test2_nsg,ruleB,Inbound,192.168.2.0/24,ANY,172.16.0.64/27,TCP,445,Allow
+200,test2_nsg,ruleC,Outbound,192.168.0.0/24,ANY,172.16.0.64/27,TCP,445,Allow
 3000,Alldeny,Alldeny,Inbound,ANY,ANY,ANY,TCP,ANY,Deny
