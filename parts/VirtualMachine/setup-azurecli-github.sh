@@ -5,7 +5,7 @@ sudo timedatectl set-timezone Asia/Tokyo
 NOW_DATE_JAPAN=`date +%Y%m%d`
 
 # check custom-script.log file
-CUSTOM_SCRIPT_LOG=/var/tmp/customscript.${NOW_DATE_JAPAN}.log
+CUSTOM_SCRIPT_LOG=/tmp/customscript.${NOW_DATE_JAPAN}.log
 
 if [ ! -f ${CUSTOM_SCRIPT_LOG} ]
 then
