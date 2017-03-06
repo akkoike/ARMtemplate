@@ -11,7 +11,7 @@
                 "hardwareProfile": {
                     "vmSize": "[parameters('vmSize')]"
                 },
-                "storageProfile": {kk
+                "storageProfile": {
                     "imageReference": {
                         "publisher": "OpenLogic",
                         "offer": "CentOS",
