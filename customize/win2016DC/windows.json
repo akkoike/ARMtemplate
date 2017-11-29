@@ -1,0 +1,301 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loginUser": {
+            "defaultValue": "koike",
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine."
+            }
+        },
+        "loginPassword": {
+            "type": "securestring",
+            "metadata": {
+              "description": "Password for the Virtual Machine."
+            }
+          },
+        "virtualMachines_name": {
+            "defaultValue": "wintest01",
+            "type": "string",
+            "metadata": {
+                "description": "VM Name"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_A2",
+            "allowedValues": [
+                "Standard_A1",
+                "Standard_A1_v2",
+                "Standard_A2",
+                "Standard_A2_v2",
+                "Standard_D1",
+                "Standard_D2",
+                "Standard_D1_v2",
+                "Standard_D2_v2",
+                "Standard_DS1",
+                "Standard_DS2",
+                "Standard_DS1_v2",
+                "Standard_DS2_v2",
+                "Standard_F1",
+                "Standard_F2",
+                "Standard_F1s",
+                "Standard_F2s"
+                
+            ],
+            "metadata": {
+                "description": "Size of the Virtual Machine."
+            }
+        },
+        "osVersion": {
+            "type": "string",
+            "defaultValue": "2016-Datacenter",
+            "metadata": {
+                "description": "OS Version of Windows Server."
+            }
+        },
+        "availabilitySets_name": {
+            "defaultValue": "wintest01-avail1",
+            "type": "string",
+            "metadata": {
+                "description": "Availability Set Name"
+            }
+        },
+        "storageRedundancy": {
+            "defaultValue": "Standard_LRS",
+            "type": "string",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS"
+            ],
+            "metadata": {
+                "description": "Availability Set Name"
+            }
+        },
+        "networkSecurityGroups_name": {
+            "defaultValue": "wintest01-nsg",
+            "type": "string",
+            "metadata": {
+                "description": "NSG Name"
+            }
+        },
+        "virtualNetworks_name": {
+            "defaultValue": "win-vnet1",
+            "type": "string",
+            "metadata": {
+                "description": "vNet Name"
+            }
+        },
+        "vnetAddressPrefix": {
+            "defaultValue": "172.10.0.0/16",
+            "type": "string",
+            "metadata": {
+                "description": "vNet address"
+            }
+        },
+        "subnetAddressPrefix": {
+            "defaultValue": "172.10.0.0/24",
+            "type": "string",
+            "metadata": {
+                "description": "Subnet address , need to include vNet address"
+            }
+        }
+
+    },
+    "variables": {
+        "networkInterfaces_name": "[concat(parameters('virtualMachines_name'),'1111')]",
+        "publicIPAddresses_name": "[concat(parameters('virtualMachines_name'),'-pip2')]",
+        "storageAccounts_name": "[concat(parameters('virtualMachines_name'),'stor02')]"
+    },
+    "resources": [
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Compute/availabilitySets/centostest01-avail' から一般化されました。",
+            "type": "Microsoft.Compute/availabilitySets",
+            "name": "[parameters('availabilitySets_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 3
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Compute/virtualMachines/centostest01' から一般化されました。",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachines_name')]",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_name'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "[parameters('osVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[parameters('virtualMachines_name')]",
+                        "createOption": "FromImage",
+                        "vhd": {
+                            "uri": "[concat('https', '://', variables('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'_',uniqueString(resourceGroup().id),'.vhd'))]"
+                        },
+                        "caching": "ReadWrite"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_name')]",
+                    "adminUsername": "[parameters('loginUser')]",
+                    "adminPassword": "[parameters('loginPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": []
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaces_name'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySets_name'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaces_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/networkInterfaces/centostest0196' から一般化されました。",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('networkInterfaces_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddresses_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name')), '/subnets/SUBNET01')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_name'))]"
+                }
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddresses_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/networkSecurityGroups/centostest01-nsg' から一般化されました。",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('networkSecurityGroups_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-rdp",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/publicIPAddresses/centostest01-ip' から一般化されました。",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddresses_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Network/virtualNetworks/cent-vnet' から一般化されました。",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SUBNET01",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnetAddressPrefix')]"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions//resourceGroups/cent-rg/providers/Microsoft.Storage/storageAccounts/centosstor01' から一般化されました。",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "[parameters('storageRedundancy')]",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[variables('storageAccounts_name')]",
+            "apiVersion": "2016-01-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        }
+    ]
+}
